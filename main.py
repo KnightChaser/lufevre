@@ -116,5 +116,5 @@ if __name__ == "__main__":
             payload()
             break
         except Exception as exception:
-            print(f"[-] Exception occurred during runtime: {exception}, might be due to the browser is currently running, making database access crashed")
+            print(f"[-] Exception occurred during runtime: {exception}, might be due to the browser/export file is currently running, making database access crashed")
             time.sleep(10)

