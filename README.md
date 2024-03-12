@@ -1,7 +1,7 @@
 # lufevre
 ### A simple and fast Chrome browser information stealer
 
-This program is designed to steal information from the Chrome browser. It is a lightweight and efficient tool that can quickly gather various types of data from the target system.
+This program is designed to steal information from the Chrome browser installed on Windows System. It is a lightweight and efficient tool that can quickly gather various types of data from the target system.
 
 ## Features
 - **Website login credentials(ID/PW):** `lufevre` can extract and collect login credentials (username and password) used for various websites accessed through the Chrome browser.
@@ -14,6 +14,8 @@ This program is designed to steal information from the Chrome browser. It is a l
 - lufevre supports multiple profiles in the browser and the extracted information will be exported as excel files; `{PCName}_{BrowserName}_{Profile}.xlsx`.
 
 ## Preview
+> tested on Chrome version `122.0.6261.112 (Official Build) (64-bit) (cohort: Stable) `, OS: `Windows 11 Version 23H2 (Build 22631.3155)`
+
 ![lufevre_1](./readme_pictures/lufevre_1.png)
 ![lufevre_2](./readme_pictures/lufevre_2.png)
 ![lufevre_3](./readme_pictures/lufevre_3.png)
